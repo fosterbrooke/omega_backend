@@ -1,3 +1,5 @@
+require("dotenv").config(); // Make sure to npm install dotenv
+
 module.exports = {
   NODE_ENV: process.env.NODE_ENV,
   PORT: process.env.PORT,
