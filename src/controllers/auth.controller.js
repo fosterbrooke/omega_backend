@@ -9,19 +9,36 @@ const Op = db.Op;
 exports.signup = (req, res) => {
   const { name, business, email, phone, password } = req.body;
   console.log(req.params);
-  User.create({
-    name,
-    business,
-    email,
-    phone,
-    password: bcrypt.hashSync(password, 8),
-  })
-    .then((user) => {
-      res.send({ message: "User was registered successfully!", user });
+  User.findOne({
+    where: {
+      name: req.body.name,
+    },
+  }).then((user) => {
+    if (user) {
+      return res.status(400).send({ message: "User already exists" });
+    }
+    User.create({
+      name,
+      business,
+      email,
+      phone,
+      password: bcrypt.hashSync(password, 8),
     })
-    .catch((err) => {
-      res.status(500).send({ message: err.message });
-    });
+      .then((user) => {
+        res.send({
+          message: "User was registered successfully!",
+          user: {
+            name: user.name,
+            business: user.business,
+            email: user.email,
+            phone: user.phone,
+          },
+        });
+      })
+      .catch((err) => {
+        res.status(500).send({ message: err.message });
+      });
+  });
 };
 
 exports.signin = (req, res) => {
@@ -54,7 +71,12 @@ exports.signin = (req, res) => {
       res.status(200).send({
         message: "User logged in successfully",
         accessToken: token,
-        user,
+        user: {
+          name: user.name,
+          business: user.business,
+          email: user.email,
+          phone: user.phone,
+        },
       });
     })
     .catch((err) => {
